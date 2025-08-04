@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaSathi Lite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" id="main-container">
+        <div class="control-panel">
+            <button id="toggle-inclusive">Inclusive UI</button>
+            <select id="language-select">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+            </select>
+            <select id="user-mode">
+                <option value="standard">Standard</option>
+                <option value="child">Child</option>
+                <option value="elder">Elder</option>
+            </select>
+            <a href="/map"><button data-lang-en="View Map" data-lang-hi="मानचित्र देखें">View Map</button></a>
+        </div>
+
+        <h1 data-lang-en="💧 AquaSathi Lite" data-lang-hi="💧 एक्वासाथी लाइट">💧 AquaSathi </h1>
+        
+        <form id="water-form" method="POST">
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+
+            <div class="input-group">
+                <label for="color" data-lang-en="Color level (0-1)" data-lang-hi="रंग स्तर (0-1)">Color level (0-1)</label>
+                <input type="number" id="color" step="0.01" name="color" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="turbidity" data-lang-en="Turbidity (NTU)" data-lang-hi="गंदलापन (NTU)">Turbidity (NTU)</label>
+                <input type="number" id="turbidity" step="0.01" name="turbidity" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="ph" data-lang-en="pH value" data-lang-hi="पीएच मान">pH value</label>
+                <input type="number" id="ph" step="0.1" name="ph" required>
+            </div>
+
+            <button type="submit" data-lang-en="Check Water Quality" data-lang-hi="पानी की गुणवत्ता जांचें">Check Water Quality</button>
+        </form>
+
+        {% if result %}
+            <div class="result {% if result == 'Safe' %}safe{% elif result == 'Unsafe' %}unsafe{% endif %}">
+                <h2 data-lang-en="Result:" data-lang-hi="परिणाम:">Result:</h2> <strong>{{ result }}</strong>
+            </div>
+        {% endif %}
+
+        <div class="educational-mode">
+            <h3 data-lang-en="Learn about water quality!" data-lang-hi="पानी की गुणवत्ता के बारे में जानें!">Learn about water quality!</h3>
+            <p data-lang-en="Low color and turbidity with a neutral pH (around 7) usually indicates safer water." data-lang-hi="कम रंग और मैलापन के साथ एक तटस्थ पीएच (लगभग 7) आमतौर पर सुरक्षित पानी का संकेत देता है।">Low color and turbidity with a neutral pH (around 7) usually indicates safer water.</p>
+            <div class="quiz">
+                <h4>🧠 Quiz Time!</h4>
+                <p>Q1: What pH value is considered neutral?</p>
+                <button onclick="checkAnswer(7)">7</button>
+                <button onclick="checkAnswer(5)">5</button>
+                <button onclick="checkAnswer(9)">9</button>
+                <p id="quiz-feedback"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Help Button -->
+    <button id="help-button" title="Help">?</button>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainContainer = document.body;
+        const languageSelect = document.getElementById('language-select');
+        const userMode = document.getElementById('user-mode');
+
+        const translations = {
+            'hi': {
+                '💧 AquaSathi Lite': '💧 एक्वासाथी लाइट',
+                'Color level (0-1)': 'रंग स्तर (0-1)',
+                'Turbidity (NTU)': 'गंदलापन (NTU)',
+                'pH value': 'पीएच मान',
+                'Check Water Quality': 'पानी की गुणवत्ता जांचें',
+                'Result:': 'परिणाम:',
+                'Learn about water quality!': 'पानी की गुणवत्ता के बारे में जानें!',
+                'Low color and turbidity with a neutral pH (around 7) usually indicates safer water.': 'कम रंग और मैलापन के साथ एक तटस्थ पीएच (लगभग 7) आमतौर पर सुरक्षित पानी का संकेत देता है।',
+                'Inclusive UI': 'समावेशी यूआई',
+                'View Map': 'मानचित्र देखें'
+            }
+        };
+
+        function applyLanguage(lang) {
+            document.querySelectorAll('[data-lang-en]').forEach(el => {
+                const key = el.dataset.langEn;
+                el.textContent = translations[lang] && translations[lang][key] ? translations[lang][key] : key;
+            });
+        }
+
+        languageSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
+
+        document.getElementById('toggle-inclusive').addEventListener('click', () => {
+            mainContainer.classList.toggle('inclusive-mode');
+        });
+
+        userMode.addEventListener('change', () => {
+            const mode = userMode.value;
+            mainContainer.classList.remove('child-mode', 'elder-mode');
+            if (mode === 'child') mainContainer.classList.add('child-mode');
+            else if (mode === 'elder') mainContainer.classList.add('elder-mode');
+        });
+
+        // Voice prompt for help
+        document.getElementById('help-button').addEventListener('click', () => {
+            const lang = languageSelect.value;
+            const messages = {
+                en: "Welcome to AquaSathi. Enter color, turbidity, and pH. Then click Check Water Quality. You can also switch to Child or Elder mode, view the map, or take the quiz.",
+                hi: "एक्वासाथी में आपका स्वागत है। रंग, गंदलापन और पीएच दर्ज करें। फिर गुणवत्ता जांचें बटन दबाएं। आप बच्चों या बुजुर्ग मोड में बदल सकते हैं, मानचित्र देख सकते हैं या क्विज़ ले सकते हैं।"
+            };
+            const voice = new SpeechSynthesisUtterance(messages[lang] || messages['en']);
+            voice.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+            speechSynthesis.speak(voice);
+        });
+
+        // Quiz answer check
+        window.checkAnswer = function(answer) {
+            const feedback = document.getElementById('quiz-feedback');
+            if (answer === 7) {
+                feedback.textContent = "✅ Correct! Neutral pH is 7.";
+                feedback.style.color = 'green';
+            } else {
+                feedback.textContent = "❌ Try again. Hint: It's a number between 6 and 8.";
+                feedback.style.color = 'red';
+            }
+        };
+
+        // Geolocation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                document.getElementById('latitude').value = position.coords.latitude;
+                document.getElementById('longitude').value = position.coords.longitude;
+            });
+        }
+    });
+    </script>
+</body>
+</html>

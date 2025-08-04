@@ -1,8 +1,8 @@
-# AquaSathi Lite 💧🌿
+# AquaSathi  💧🌿
 
 **AI-Powered Water Quality Advisor for Vulnerable Communities**
 
-AquaSathi Lite is an accessible, lightweight solution designed to help elderly and specially-abled individuals assess water quality at home or in community settings using AI, ML, and a simple dashboard interface.
+AquaSathi is an accessible, lightweight solution designed to help elderly and specially-abled individuals assess water quality at home or in community settings using AI, ML, and a simple dashboard interface.
 
 ---
 
